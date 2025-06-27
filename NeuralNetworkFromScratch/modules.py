@@ -81,36 +81,36 @@ class Sequential(Module):
 		Возвращает список всех параметров.
 		"""
 
-		return [module.accGradParameters() for module in self.modules]
+		return [module.getParameters() for module in self.modules]
 
 	def __repr__(self):
+		
+		string = "".join([str(x) + '\n' for x in self.modules])
 
-        string = "".join([str(x) + '\n' for x in self.modules])
-        
-        return string
+		return 'Sequential:\n' + string
 
-    def __getitem__(self, x):
-        
-        return self.modules.__getitem__(x)
+	def __getitem__(self, x):
 
-    def train(self):
+		return self.modules.__getitem__(x)
 
-        """
-        Распространяет training параметр по всем модулям
-        """
-        
-        self.training = True
-        
-        for module in self.modules: module.train()
+	def train(self):
 
-    def evaluate(self):
-        
-        """
-        Распространяет training параметр по всем модулям
-        """
-        
-        self.training = False
-        
-        for module in self.modules: module.evaluate()
+		"""
+		Распространяет training по всем модулям. 
+		"""
+
+		self.training = True
+
+		for module in self.modules: module.train()
+
+	def evaluate(self):
+
+		"""
+		Распространяет training параметр по всем модулям
+		"""
+
+		self.training = False
+
+		for module in self.modules: module.evaluate()
 
 # ----------------------------------------------------------------------------------------------------------------------------
