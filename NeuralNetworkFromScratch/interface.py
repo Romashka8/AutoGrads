@@ -111,7 +111,7 @@ class Module(abc.ABC):
 
 		return []
 
-	def accGradParameters(self):
+	def getGradParameters(self):
 
 		"""
 		Возвращает список с градиентами относительно его параметров.
@@ -182,4 +182,4 @@ class Criterion(abc.ABC):
         Следует переопределять в каждм модуле, если хотим получать красивую печать.
         """
         
-        return "Criterion"
+        return 'Criterion'
