@@ -114,3 +114,69 @@ class Sequential(Module):
 		for module in self.modules: module.evaluate()
 
 # ----------------------------------------------------------------------------------------------------------------------------
+
+class Linear(Module):
+
+	"""
+	Модуль, который применяет линейное преобразование.
+	Его также называют полносвязным слоем.
+
+	Модуль работает с 2D input-ом размера (n_samples, n_features).
+	"""
+
+	def __init__(self, n_in, n_out):
+		
+		super(Linear, self).__init__()
+
+		# Неплохой вариант инициализации
+		stdv = 1. / np.sqrt(n_in)
+		self.W = np.random.uniform(-stdv, stdv, size = (n_out, n_in))
+		self.b = np.random.uniform(-stdv, stdv, size = n_out)
+
+		self.gradW = np.zeros_like(self.W)
+		self.gradb = np.zeros_like(self.b)
+
+	def updateOutput(self, _input):
+		
+		self.output = np.dot(_input, self.W) + self.b
+
+		return self.output
+
+	def updateGradInput(self, _input, gradOutput):
+
+		self.gradInput = np.dot(gradOutput, self.W.T)
+
+		return self.gradInput
+
+	def accGradParameters(self, _input, gradOutput):
+
+		"""
+		Необходимо для сложных оптимизаторов. 
+		delta_W = input.T @ delta_y
+		delta_y - она же и gradOutput
+		"""
+
+		self.gradW += np.dot(_input.T, gradOutput)
+		self.gradb += np.sum(gradOutput, axis=0)
+
+	def zeroGradParameters(self):
+
+		self.gradW.fill(0)
+		self.gradb.fill(0)
+
+	def getParameters(self):
+
+		return [self.W, self.b]
+
+	def getGradParameters(self):
+
+		return [self.gradW, self.gradb]
+
+	def __repr__(self):
+
+		s = self.W.shape
+		q = 'Linear %d -> %d' %(s[1], s[0])
+
+		return q
+
+# ----------------------------------------------------------------------------------------------------------------------------
