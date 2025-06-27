@@ -157,7 +157,7 @@ class Criterion(abc.ABC):
 		Эту функцию не стоит переопределять. Вместо этого переопределяется updateOutput
 		"""
 
-		return return self.updateOutput(input, target)
+		return self.updateOutput(input, target)
 
 	def backward(self, input, target):
 
@@ -170,16 +170,16 @@ class Criterion(abc.ABC):
 
 	@abc.abstractmethod
 	def updateOutput(self, input, target):
-        pass
+		pass
 
-    @abc.abstractmethod
-    def updateGradInput(self, input, target):
-        pass
+	@abc.abstractmethod
+	def updateGradInput(self, input, target):
+		pass
 
-    def __repr__(self):
+	def __repr__(self):
+
+		"""
+		Следует переопределять в каждм модуле, если хотим получать красивую печать.
+		"""
         
-        """
-        Следует переопределять в каждм модуле, если хотим получать красивую печать.
-        """
-        
-        return 'Criterion'
+		return 'Criterion'
