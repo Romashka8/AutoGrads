@@ -180,3 +180,38 @@ class Linear(Module):
 		return q
 
 # ----------------------------------------------------------------------------------------------------------------------------
+
+class SoftMax(Module):
+
+	"""
+	SoftMax модуль - используется в качестве выходного модуля
+	в задачах многоклассовой классификации.
+	"""
+
+	def __init__(self):
+
+		super(SoftMax, self).__init__()
+
+	def updateOutput(self, _input):
+
+		# Начнем с нормализации для численной стабильности
+		self.output = np.subtract(_input, _input.max(axis=1, keepdims=True))
+
+		self.output = np.exp(self.output)
+		self.output = self.output / np.sum(self.output, axis=1, keepdims=True)
+
+		return self.output
+
+	def updateGradInput(self, _input, gradOutput):
+
+		# Расчитаем градиент:
+		dot_product = np.sum(self.output * gradOutput, axis=1, keepdims=True)
+		self.gradInput = self.output * (gradOutput - dot_product)
+
+		return self.gradInput
+
+	def __repr__(self):
+
+		return 'SoftMax layer'
+
+# ----------------------------------------------------------------------------------------------------------------------------
