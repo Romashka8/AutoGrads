@@ -260,6 +260,10 @@ class LogSoftMax(Module):
 
 class ReLU(Module):
 
+	"""
+	Реализует ReLU модуль.
+	"""
+
 	def __init__(self):
 
 		super(ReLU, self).__init__()
@@ -279,5 +283,39 @@ class ReLU(Module):
 	def __repr__(self):
 
 		return 'ReLU Layer'
+
+# ----------------------------------------------------------------------------------------------------------------------------
+
+class LeakyReLU(Module):
+
+	"""
+	Реализует LeakyReLU модуль.
+	"""
+
+	def __init__(self, slope=0.03):
+
+		super(LeakyReLU, self).__init__()
+
+		self.slope = slope
+
+	def updateOutput(self, _input):
+
+		self.output = np.where(_input > 0, _input, self.slope * _input)
+
+		return self.output
+
+	def updateGradInput(self, _input, gradOutput):
+
+		# Сделаем маску для положительных компонентов
+		mask = (_input > 0).astype(int)
+
+		# Вычисляем производную LeackyReLU
+		self.gradInput = gradOutput * (mask + self.slope * (1 - mask))
+
+		return self.gradInput
+
+	def __repr__(self):
+
+		return 'LeakyReLU Layer'
 
 # ----------------------------------------------------------------------------------------------------------------------------
