@@ -215,3 +215,45 @@ class SoftMax(Module):
 		return 'SoftMax layer'
 
 # ----------------------------------------------------------------------------------------------------------------------------
+
+class LogSoftMax(Module):
+
+	"""
+	Применяет Log(SoftMax(x)) к входным данным.
+	"""
+
+	def __init__(self):
+
+		super(LogSoftMax, self).__init__()
+
+	def updateOutput(self, _input):
+
+		# Для начала стабилизируем данные
+		shifted = _input - _input.max(axis=1, keepdims=True)
+
+		# Вычисление log(sum(exp)) с защитой от переполнения
+		log_sum_exp = np.log(np.sum(np.exp(shifted), axis=1, keepdims=True))
+		
+		# LogSoftmax = shifted - log(sum(exp))
+		self.output = shifted - log_sum_exp
+
+		return self.output
+
+	def updateGradInput(self, _input, gradOutput):
+
+		# Вычисляем softmax из log softmax
+		softmax = np.exp(self.output)
+		
+		# Сумма градиентов по каждому примеру в батче
+		sum_grad = np.sum(gradOutput, axis=1, keepdims=True)
+		
+		# Вычисляем градиент
+		self.gradInput = gradOutput - softmax * sum_grad
+
+		return self.gradInput
+
+	def __repr__(self):
+
+		return 'LogSoftMax Layer'
+
+# ----------------------------------------------------------------------------------------------------------------------------
