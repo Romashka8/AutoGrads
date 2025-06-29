@@ -257,3 +257,27 @@ class LogSoftMax(Module):
 		return 'LogSoftMax Layer'
 
 # ----------------------------------------------------------------------------------------------------------------------------
+
+class ReLU(Module):
+
+	def __init__(self):
+
+		super(ReLU, self).__init__()
+
+	def updateOutput(self, _input):
+
+		self.output = np.maximum(_input, 0)
+
+		return self.output
+
+	def updateGradInput(self, _input, gradOutput):
+
+		self.gradInput = np.multiply(gradOutput, _input > 0)
+
+		return self.gradInput
+
+	def __repr__(self):
+
+		return 'ReLU Layer'
+
+# ----------------------------------------------------------------------------------------------------------------------------
