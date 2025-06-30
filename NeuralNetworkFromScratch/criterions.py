@@ -5,17 +5,17 @@ from interface import *
 
 # ----------------------------------------------------------------------------------------------------------------------------
 
-class ClassNLLCriterion(Criterion):
+class ClassicNLLCriterion(Criterion):
 
 	"""
 	Реализация Negative LogLikelihood criterion.
 	"""
 
-    def __init__(self, epsilon=1e-15):
+	def __init__(self, epsilon=1e-15):
 
-    	super(ClassNLLCriterion, self).__init__()
+		super(ClassicNLLCriterion, self).__init__()
 
-    	self.epsilon = epslon
+		self.epsilon = epslon
         
 	def updateOutput(self, _input, target):
 	
@@ -31,28 +31,83 @@ class ClassNLLCriterion(Criterion):
 
 		return self.output
 
-    def updateGradInput(self, _input, target):
+	def updateGradInput(self, _input, target):
 
     	# Инициализация градиента
-    	self.gradInput = np.zeroes_like(_input)
+		self.gradInput = np.zeroes_like(_input)
 
     	# Защита от численной нестабильности
-    	input_clamp = np.clip(_input, self.epsilon, 1.0)
+		input_clamp = np.clip(_input, self.epsilon, 1.0)
 
-    	# Выбор значений для целевых классов
-    	batch_size = target.shape[0]
-    	target_indices = (np.arange(batch_size), target)
+		# Выбор значений для целевых классов
+		batch_size = target.shape[0]
+		target_indices = (np.arange(batch_size), target)
 
-    	# Вычисление градиента
-    	self.gradInput[target_indices] = -1.0 / input_clamp[target_indices]
+		# Вычисление градиента
+		self.gradInput[target_indices] = -1.0 / input_clamp[target_indices]
 
-    	# Нормализация по размеру батча
-    	self.gradInput /= batch_size
+		# Нормализация по размеру батча
+		self.gradInput /= batch_size
 
-        return self.gradInput
+		return self.gradInput
     
-    def __repr__(self):
+	def __repr__(self):
 
-        return 'Class Negative Log Likelihood Criterion'
+		return 'Classic Negative Log Likelihood Criterion'
+
+# ----------------------------------------------------------------------------------------------------------------------------
+
+class MultiTargetNLLCriterion(Criterion):
+
+	"""
+	Реализация Negative LogLikelihood criterion для случая мультитаргета.
+	"""
+
+	def __init__(self, epsilon=1e-15):
+
+		super(MultiTargetNLLCriterion, self).__init__()
+
+		self.epsilon = epsilon
+
+	def updateOutput(self, _input, target):
+
+		input_clamp = np.clip(_input, self.epsilon, 1.0)
+		batch_size = target.shape[0]
+		num_targets = target.shape[1]
+
+		# Собираем вероятности всех таргетов
+		all_target_probs = input_clamp[
+			np.repeat(np.arange(batch_size), num_targets),
+			target.ravel()
+		]
+
+		# Вычисляем средний логлосс по всем таргетам.
+		self.output = -np.mean(np.log(all_target_probs))
+
+		return self.output
+
+	def updateGradInput(self, _input, target):
+
+		input_clamp = np.clip(_input, self.epsilon, 1.0)
+		batch_size = target.shape[0]
+		num_targets = target.shape[1]
+
+		self.gradInput = np.zeroes_like(_input)
+
+		# создаем индексы для всех таргетов
+		rows = np.repeat(np.arange(batch_size), num_targets)
+		cols = target.ravel()
+
+		# Считаем градиенты для всех таргетов
+		self.gradInput[rows, cols] = -1.0 / input_clamp[rows, cols]
+
+		# Нормализуем по общему количеству таргетов.
+		self.gradInput /= (batch_size * num_targets)
+
+		return self.gradInput
+
+	def __repr__(self):
+
+		return 'MultiTargetNLLCriterion Criterion'
 
 # ----------------------------------------------------------------------------------------------------------------------------
