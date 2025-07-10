@@ -92,6 +92,14 @@ class Tensor(Tensor):
 					self.creators[0].backward(self.grad, self)
 					self.creators[1].backward(self.grad, self)
 
+				if self.creation_op == "neg":
+
+					"""
+					Для отрицания меняем знак у первого родителя.
+					"""
+
+					self.creators[0].backward(self.grad.__neg__())
+
 	def __add__(self, other):
 
 		if self.autograd and other.autograd:
@@ -104,6 +112,19 @@ class Tensor(Tensor):
 			)
 
 		return Tensor(self.data + other.data)
+
+	def __neg__(self):
+
+		if self.autograd:
+
+			return Tensor(
+				self.data * -1,
+				autograd = True,
+				creators = [self],
+				creation_op = "neg"
+			)
+
+		return Tensor(self.data * -1)
 
 	def __repr__(self):
 
@@ -121,12 +142,12 @@ if __name__ == "__main__":
 	b = Tensor([2, 2, 2, 2, 2], autograd=True)
 	c = Tensor([5, 4, 3, 2, 1], autograd=True)
 
-	d = a + b
-	e = b + c
+	d = a + (-b)
+	e = (-b) + c
 	f = d + e
 
 	f.backward(Tensor([1, 1, 1, 1, 1]))
 	
-	print(b.grad.data == np.array([2, 2, 2, 2, 2]))	
+	print(b.grad.data == np.array([-2, -2, -2, -2, -2]))	
 
 # -----------------------------------------------------------------------------------------------------------
