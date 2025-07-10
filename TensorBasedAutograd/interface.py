@@ -36,6 +36,15 @@ class Tensor(abc.ABC):
 		pass
 
 	@abc.abstractmethod
+	def __neg__(self):
+
+		"""
+		Реализация отрицания элементов тензора.
+		"""
+
+		pass
+
+	@abc.abstractmethod
 	def __repr__(self):
 		
 		"""
