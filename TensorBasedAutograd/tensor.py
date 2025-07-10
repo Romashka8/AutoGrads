@@ -8,7 +8,7 @@ from interface import *
 
 class Tensor(Tensor):
 
-	def __init__(self, data, creators=None, creation_op=None):
+	def __init__(self, data, autograd=False, creators=None, creation_op=None, id=None):
 
 		"""
 		data: данные тензора, массив
@@ -18,30 +18,92 @@ class Tensor(Tensor):
 		"""
 
 		self.data = np.array(data)
-		self.creators = creators
-		self.creation_op = creation_op
+		self.autograd = autograd
 		self.grad = None
 
-	def backward(self, grad):
+		if id is None:
+			self.id = np.random.randint(0, 100000)
+		else:
+			self.id = id
+
+		self.creators = creators
+		self.creation_op = creation_op
+		self.children = {}
+
+		if creators is not None:
+			for c in creators:
+				if self.id not in c.children:
+					c.children[self.id] = 1
+				else:
+					c.children[self.id] += 1
+
+	def _all_children_grads_accounted_for(self):
+
+		for id, cnt in self.children.items():
+			if cnt != 0:
+				return False
+		return True
+
+	def backward(self, grad=None, grad_origin=None):
 
 		"""
 		Получает на вход градиент и распространяет ошибку по графу сети в обратном направлении.
 		"""
 
-		self.grad = grad
+		if self.autograd:
 
-		if self.creation_op == "add":
+			if grad is None:
+				grad = Tensor(np.ones_like(self.data))
+
+			if grad_origin is not None:
+				if self.children[grad_origin.id] == 0:
+					raise Exception("Cannot backprop more than once!")
+				else:
+					self.children[grad_origin.id] -= 1
+
+			if self.grad is None:
+				self.grad = grad
+			else:
+				self.grad += grad
 
 			"""
-			В случае с сложением градиент просто распространяется по родительским узлам.
+			Градиенты не должны иметь своих градиентов
+			(в контексте торча - градиент - тензор, у которого автоматически градиент не считается)
+			"""
+			
+			assert grad.autograd == False
+			
+			"""
+			Продолжаем обратное распространение только есть 
+			есть что распространять обратно и все градиенты (от детей)
+			учтены для переопределения ожидания дочерних элементов, если
+			"backprop" был вызван непосредственно для этой переменной
 			"""
 
-			self.creators[0].backward(grad)
-			self.creators[1].backward(grad)
+			if self.creators is not None and (self._all_children_grads_accounted_for() or grad_origin is not None):
+
+
+				if self.creation_op == "add":
+
+					"""
+					В случае с сложением градиент просто распространяется по родительским узлам.
+					"""
+
+					self.creators[0].backward(self.grad, self)
+					self.creators[1].backward(self.grad, self)
 
 	def __add__(self, other):
 
-		return Tensor(self.data + other.data, creators = [self, other], creation_op = "add")
+		if self.autograd and other.autograd:
+
+			return Tensor(
+				self.data + other.data,
+				autograd = True,
+				creators = [self, other],
+				creation_op = "add"
+			)
+
+		return Tensor(self.data + other.data)
 
 	def __repr__(self):
 
@@ -55,18 +117,16 @@ class Tensor(Tensor):
 
 if __name__ == "__main__":
 
-	x = Tensor([1, 2, 3, 4, 5])
-	y = Tensor([2, 2, 2, 2, 2])
+	a = Tensor([1, 2, 3, 4, 5], autograd=True)
+	b = Tensor([2, 2, 2, 2, 2], autograd=True)
+	c = Tensor([5, 4, 3, 2, 1], autograd=True)
 
-	z = x + y
+	d = a + b
+	e = b + c
+	f = d + e
 
-	z.backward(Tensor([1, 1, 1, 1, 1]))
-
-	print(x.grad)
-	print(y.grad)
-	print(z.creators)
-	print(z.creation_op)
-
+	f.backward(Tensor([1, 1, 1, 1, 1]))
 	
+	print(b.grad.data == np.array([2, 2, 2, 2, 2]))	
 
 # -----------------------------------------------------------------------------------------------------------
