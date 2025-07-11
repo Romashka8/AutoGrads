@@ -45,6 +45,61 @@ class Tensor(abc.ABC):
 		pass
 
 	@abc.abstractmethod
+	def __sub__(self):
+
+		"""
+		Реализация тензорного вычитания.
+		"""
+
+		pass
+
+	@abc.abstractmethod
+	def __mul__(self):
+
+		"""
+		Реализует умножение тензоров.
+		"""
+
+		pass
+
+
+	@abc.abstractmethod
+	def sum(self):
+
+		"""
+		Суммирует тензоры по определенному измерению.
+		"""
+
+		pass
+
+	@abc.abstractmethod
+	def expand(self):
+
+		"""
+		Расширяет тензор.
+		"""
+
+		pass
+
+	@abc.abstractmethod
+	def transpose(self):
+
+		"""
+		Транспонирует тензоры.
+		"""
+
+		pass
+
+	@abc.abstractmethod
+	def mm(self):
+
+		"""
+		Матричное умножение тензоров.
+		"""
+
+		pass
+
+	@abc.abstractmethod
 	def __repr__(self):
 		
 		"""
