@@ -119,7 +119,7 @@ class Tensor(abc.ABC):
 
 # ----------------------------------------------------------------------------------------------------------- 
 
-class Optimizer:
+class Optimizer(abc.ABC):
 
 	@abc.abstractmethod
 	def __init__(self):
@@ -141,12 +141,31 @@ class Optimizer:
 
 # ----------------------------------------------------------------------------------------------------------- 
 
-class Layer:
+class Layer(abc.ABC):
 
 	def __init__(self):
+
+		"""
+		Инициализация списка параметров.
+		"""
+
 		self.parameters = list()
 
 	def get_parameters(self):
-		return self.parameters	
+
+		"""
+		Получение параметров.
+		"""
+
+		return self.parameters
+
+	@abc.abstractmethod
+	def forward(self):
+
+		"""
+		Реализация прямого распространения ошибки для каждого слоя.
+		"""
+
+		pass	
 
 # ----------------------------------------------------------------------------------------------------------- 
