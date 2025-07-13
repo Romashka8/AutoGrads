@@ -28,3 +28,33 @@ class Linear(Layer):
 		return input.mm(self.weight) + self.bias.expand(0, len(input.data))
 
 # -----------------------------------------------------------------------------------------------------------
+
+class Sequential(Layer):
+
+	"""
+	Реализует класс-контейнер для объединения нескольких слоев.
+	"""
+
+	def __init__(self, layers = list()):
+
+		super(Sequential, self).__init__()
+		self.layers = layers
+
+	def add(self, layer):
+
+		self.layers.append(layer)
+
+	def forward(self, input):
+
+		for layer in self.layers:
+			input = layer.forward(input)
+		return input
+
+	def get_parameters(self):
+
+		params = list()
+		for layer in self.layers:
+			params += layer.get_parameters()
+		return params
+
+# -----------------------------------------------------------------------------------------------------------
