@@ -80,7 +80,7 @@ class Tensor(Tensor):
 			"backprop" был вызван непосредственно для этой переменной
 			"""
 
-			if self.creators is not None and (self._all_children_grads_accounted_for() or grad_origin is not None):
+			if self.creators is not None and (self._all_children_grads_accounted_for() or grad_origin is None):
 
 
 				if self.creation_op == "add":
@@ -129,6 +129,8 @@ class Tensor(Tensor):
 					c0 = self.creators[0]
 					c1 = self.creators[1]
 					new = self.grad.mm(c1.transpose())
+					c0.backward(new)
+					new = self.grad.transpose().mm(c0).transpose()
 					c1.backward(new)
 
 				if self.creation_op == "transpose":
@@ -209,7 +211,7 @@ class Tensor(Tensor):
 			return Tensor(self.data - other.data,
 						  autograd = True,
 						  creators = [self, other],
-						  creation_op = "mul"
+						  creation_op = "sub"
 			)
 
 		return Tensor(self.data - other.data)
@@ -272,7 +274,7 @@ class Tensor(Tensor):
 
 			return Tensor(self.data.dot(other.data),
 						  autograd = True,
-						  creators = [self, x],
+						  creators = [self, other],
 						  creation_op = "mm"
 			)
 
