@@ -103,7 +103,7 @@ class Tensor(Tensor):
 				if self.creation_op == "sub":
 
 					"""
-					
+					Вычитание в обратном проходе перепишится как градиент первого слагаемого минус градиент второго слагаемого.
 					"""
 
 					self.creators[0].backward(Tensor(self.grad.data), self)
@@ -112,7 +112,8 @@ class Tensor(Tensor):
 				if self.creation_op == "mul":
 
 					"""
-					
+					Передача по графу правила дифференцирования умножения.
+					(a * b)' = a' * b + a * b'
 					"""
 
 					new = self.grad * self.creators[1]
@@ -123,7 +124,7 @@ class Tensor(Tensor):
 				if self.creation_op == "mm":
 
 					"""
-
+					По аналогии - правило дифференцирования данной операции.
 					"""
 
 					c0 = self.creators[0]
@@ -136,7 +137,7 @@ class Tensor(Tensor):
 				if self.creation_op == "transpose":
 
 					"""
-					
+					По аналогии - правило дифференцирования данной операции.
 					"""
 
 					self.creators[0].backward(self.grad.transpose())
@@ -144,7 +145,7 @@ class Tensor(Tensor):
 				if "sum" in self.creation_op:
 
 					"""
-					
+					По аналогии - правило дифференцирования данной операции.
 					"""
 
 					dim = int(self.creation_op.split("_")[1])
@@ -154,7 +155,7 @@ class Tensor(Tensor):
 				if "expand" in self.creation_op:
 
 					"""
-					
+					По аналогии - правило дифференцирования данной операции.
 					"""
 
 					dim = int(self.creation_op.split("_")[1])
@@ -163,7 +164,7 @@ class Tensor(Tensor):
 				if self.creation_op == "sigmoid":
 
 					"""
-					
+					По аналогии - правило дифференцирования данной операции.
 					"""
 
 					ones = Tensor(np.ones_like(self.grad.data))
@@ -172,7 +173,7 @@ class Tensor(Tensor):
 				if self.creation_op == "tanh":
 
 					"""
-
+					По аналогии - правило дифференцирования данной операции.
 					"""
 
 					ones = Tensor(np.ones_like(self.grad.data))
