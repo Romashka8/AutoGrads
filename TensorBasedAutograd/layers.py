@@ -90,3 +90,27 @@ class Sigmoid(Layer):
 		return input.sigmoid()
 
 # -----------------------------------------------------------------------------------------------------------
+
+class Embedding(Layer):
+
+	"""
+	Слой эмбеддинга для NLP задач.
+	"""
+
+	def __init__(self, vocab_size, dim):
+
+		super(Embedding, self).__init__()
+
+		self.vocab_size = vocab_size
+		self.dim = dim
+
+		# Этот тип рандомной инициализации нужен для согласования с word2vec.
+		self.weight = Tensor((np.random.randn(vocab_size, dim) - 0.5) / dim, autograd = True)
+
+		self.parameters.append(self.weight)
+
+	def forward(self, input):
+
+		return self.weight.index_select(input)
+
+# -----------------------------------------------------------------------------------------------------------
