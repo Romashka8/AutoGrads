@@ -114,3 +114,19 @@ class Embedding(Layer):
 		return self.weight.index_select(input)
 
 # -----------------------------------------------------------------------------------------------------------
+
+class CrossEntropyLoss(Layer):
+
+	"""
+	Cross Entropy слой.
+	"""
+
+	def __init__(self):
+
+		super(CrossEntropyLoss, self).__init__()
+
+	def forward(self, input, target):
+
+		return input.cross_entropy(target)
+
+# -----------------------------------------------------------------------------------------------------------
